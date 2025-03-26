@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "82650963502",
+    "firebase_url": "https://dinnerapp-78351-default-rtdb.firebaseio.com",
+    "project_id": "dinnerapp-78351",
+    "storage_bucket": "dinnerapp-78351.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:82650963502:android:d9287a2426a0d465a709bf",
+        "android_client_info": {
+          "package_name": "com.example.dinner_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7SRUVyNILej_H1kEVbTsD9B9fzvDK3K4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

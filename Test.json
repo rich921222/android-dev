@@ -1,0 +1,11 @@
+{
+  "users": {
+    "userId123": {
+      "email": "user@example.com",
+      "preferences": {
+        "food": ["pizza", "sushi"],
+        "allergies": ["peanuts"]
+      }
+    }
+  }
+}
