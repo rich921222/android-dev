@@ -48,6 +48,11 @@
         android:layout_height="wrap_content"
         android:hint="例如: 花生, 奶製品" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/allergyRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
     <Button
         android:id="@+id/saveButton"
         android:layout_width="match_parent"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CircleImageStyle" parent="">
+        <!-- cornerFamily 可設定為 rounded 或 cut 等 -->
+        <item name="cornerFamily">rounded</item>
+        <!-- 50% 代表將所有角落裁成圓形 -->
+        <item name="cornerSize">50%</item>
+    </style>
+</resources>

@@ -54,4 +54,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database") // 這行保證 Firebase Realtime Database 被加入
     implementation("com.google.firebase:firebase-auth") // Firebase Authentication
+
+    // ✅ 加這行 Flexbox Layout
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
 }

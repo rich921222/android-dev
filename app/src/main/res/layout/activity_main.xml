@@ -16,14 +16,21 @@
         android:textStyle="bold"
         android:layout_marginBottom="20dp" />
 
-    <!-- 顯示使用者的喜好資料 -->
-    <TextView
-        android:id="@+id/preferencesTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="這裡會顯示你的喜好資料"
-        android:textSize="16sp"
-        android:layout_marginTop="20dp" />
+    <!-- 喜好資料顯示區塊 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp">
+
+        <LinearLayout
+            android:id="@+id/preferencesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp" />
+    </ScrollView>
+
 
     <Button
         android:id="@+id/editPreferencesButton"
@@ -37,7 +44,7 @@
         android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="登出"
+        android:text="    登出    "
         android:layout_marginTop="30dp" />
 
 </LinearLayout>

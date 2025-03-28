@@ -4,16 +4,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.flexbox.FlexboxLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.android.flexbox.FlexWrap
+import com.google.android.flexbox.JustifyContent
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
-    private lateinit var preferencesTextView: TextView
+    private lateinit var preferencesContainer: LinearLayout
     private var preferencesListener: ValueEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         // 初始化 Firebase
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
-        preferencesTextView = findViewById(R.id.preferencesTextView)
+        preferencesContainer = findViewById(R.id.preferencesContainer)
 
         // 檢查使用者是否已經登入
         val currentUser = auth.currentUser
@@ -59,18 +64,29 @@ class MainActivity : AppCompatActivity() {
         // 監聽 Firebase 變更
         preferencesListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                preferencesContainer.removeAllViews()
+
+                // ⭐️ 先抓 ratings，不論 snapshot.exists()
+                val ratingMap = snapshot.child("ratings").children.associate { child ->
+                    val key = child.key ?: ""
+                    val value = (child.getValue(Int::class.java) ?: 0)
+                    key to value
+                }
+                Log.d("Firebase", "ratings raw: ${snapshot.child("ratings").value}")
+
+                val foodList = snapshot.child("food").children.mapNotNull { it.getValue(String::class.java) }
+                val allergyList = snapshot.child("allergies").children.mapNotNull { it.getValue(String::class.java) }
+
                 if (snapshot.exists()) {
-                    val foodList = snapshot.child("food").children.mapNotNull { it.getValue(String::class.java) }
-                    val allergyList = snapshot.child("allergies").children.mapNotNull { it.getValue(String::class.java) }
-
-                    val foodText = if (foodList.isNotEmpty()) "🍽 喜好食物:\n" + foodList.joinToString("\n") else "🍽 喜好食物:\n無"
-                    val allergyText = if (allergyList.isNotEmpty()) "🚫 過敏原:\n" + allergyList.joinToString("\n") else "🚫 過敏原:\n無"
-
-                    preferencesTextView.text = "$foodText\n\n$allergyText"
+                    addSectionWithRatings("🍽 喜好食物", foodList, ratingMap)
+                    addSection("🚫 過敏原", allergyList)
                 } else {
-                    preferencesTextView.text = "尚未設定喜好資料"
+                    // 也可加一點 fallback
+                    addSection("🍽 喜好食物", listOf("尚未設定"))
+                    addSection("🚫 過敏原", listOf("尚未設定"))
                 }
             }
+
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("Firebase", "讀取失敗: ${error.message}")
@@ -87,4 +103,101 @@ class MainActivity : AppCompatActivity() {
         // 移除監聽器，避免內存洩漏
         preferencesListener?.let { userRef.removeEventListener(it) }
     }
+    private fun addSection(title: String, items: List<String>) {
+        val titleView = TextView(this).apply {
+            text = title
+            textSize = 18f
+            setPadding(0, 16, 0, 8)
+        }
+        preferencesContainer.addView(titleView)
+
+        val blockContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL // 每個 block 一行
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        for (item in items.ifEmpty { listOf("無") }) {
+            val block = TextView(this).apply {
+                text = item
+                setPadding(24, 12, 24, 12)
+                textSize = 16f
+                setBackgroundResource(R.drawable.block_background)
+                setTextColor(resources.getColor(android.R.color.black))
+                val params = FlexboxLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,  // ✅ 撐滿整行
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                params.setMargins(8, 8, 8, 8)
+                layoutParams = params
+            }
+            blockContainer.addView(block)
+        }
+
+        preferencesContainer.addView(blockContainer)
+    }
+    private fun addSectionWithRatings(title: String, items: List<String>, ratings: Map<String, Int>) {
+        val userId = auth.currentUser?.uid ?: return
+
+        val titleView = TextView(this).apply {
+            text = title
+            textSize = 18f
+            setPadding(0, 16, 0, 8)
+        }
+        preferencesContainer.addView(titleView)
+
+        for (item in items.ifEmpty { listOf("無") }) {
+            val rowLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                setPadding(0, 8, 0, 8)
+            }
+
+            val nameView = TextView(this).apply {
+                text = item
+                textSize = 16f
+                setPadding(16, 8, 16, 8)
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+
+            val starsLayout = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+            }
+
+            val currentRating = ratings[item] ?: 0
+            val starViews = mutableListOf<ImageView>()
+
+            for (i in 1..5) {
+                val star = ImageView(this).apply {
+                    setImageResource(if (i <= currentRating) R.drawable.star_filled else R.drawable.star_empty)
+                    setPadding(4, 0, 4, 0)
+                    setOnClickListener {
+                        // 更新所有星星狀態
+                        starViews.forEachIndexed { index, imageView ->
+                            imageView.setImageResource(
+                                if (index < i) R.drawable.star_filled else R.drawable.star_empty
+                            )
+                        }
+                        // 寫入 Firebase
+                        val ratingRef = database.child("users").child(userId)
+                            .child("preferences").child("ratings").child(item)
+                        ratingRef.setValue(i)
+                    }
+                }
+                starViews.add(star)
+                starsLayout.addView(star)
+            }
+
+            rowLayout.addView(nameView)
+            rowLayout.addView(starsLayout)
+            preferencesContainer.addView(rowLayout)
+        }
+    }
+
+
 }
