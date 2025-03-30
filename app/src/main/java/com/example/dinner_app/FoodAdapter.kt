@@ -17,7 +17,8 @@ class FoodAdapter(
     private val userRef: DatabaseReference,  // ✅ 傳入 Firebase DatabaseReference
     private val database: DatabaseReference,  // Firebase DatabaseReference
     private val auth: FirebaseAuth,  // 傳入 FirebaseAuth 實例
-    private val onDeleteClick: (String) -> Unit  // ✅ 讓 Adapter 支援刪除 Callback
+    private val onDeleteClick: (String) -> Unit,  // ✅ 讓 Adapter 支援刪除 Callback
+    private val dataType: String // "food" or "allergies"
 ) : RecyclerView.Adapter<FoodAdapter.FoodViewHolder>() {
 
     class FoodViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -49,7 +50,7 @@ class FoodAdapter(
 
         // 使用 Firebase 中的 orderByValue 查找要刪除的食物
         val userId = auth.currentUser?.uid ?: return
-        val userRef = database.child("users").child(userId).child("preferences").child("food")
+        val userRef = database.child("users").child(userId).child("preferences").child(dataType)
 
         // 查找並刪除食物
         userRef.orderByValue().equalTo(foodToRemove).addListenerForSingleValueEvent(object : ValueEventListener {

@@ -48,10 +48,21 @@
         android:layout_height="wrap_content"
         android:hint="例如: 花生, 奶製品" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/allergyRecyclerView"
+    <!-- 讓 RecyclerView 在 NestedScrollView 內滾動 -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/allergyRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="100dp"
+            android:maxHeight="200dp" />
+
+    </androidx.core.widget.NestedScrollView>
 
     <Button
         android:id="@+id/saveButton"

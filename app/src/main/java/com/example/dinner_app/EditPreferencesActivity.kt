@@ -46,17 +46,18 @@ class EditPreferencesActivity : AppCompatActivity() {
         allergyRecyclerView = findViewById(R.id.allergyRecyclerView)
 
         // 設定 RecyclerView
-        foodAdapter = FoodAdapter(foodList,userRef,database,auth) { food -> removeFood(food) }
+        foodAdapter = FoodAdapter(foodList,userRef,database,auth,{ food -> removeFood(food) },"food")
         foodRecyclerView.layoutManager = LinearLayoutManager(this)
         foodRecyclerView.adapter = foodAdapter
 
-        allergyAdapter = FoodAdapter(allergyList, userRef, database, auth) { allergy -> removeAllergy(allergy) }
+        allergyAdapter = FoodAdapter(allergyList, userRef, database, auth,{ allergy -> removeAllergy(allergy) }, "allergies")
         allergyRecyclerView.layoutManager = LinearLayoutManager(this)
         allergyRecyclerView.adapter = allergyAdapter
-        allergyRecyclerView.isNestedScrollingEnabled = false
+
 
         // 禁用 RecyclerView 內部滾動，避免與 NestedScrollView 衝突
         foodRecyclerView.isNestedScrollingEnabled = false
+        allergyRecyclerView.isNestedScrollingEnabled = false
 
         val saveButton: Button = findViewById(R.id.saveButton)
         val cancelButton: Button = findViewById(R.id.cancelButton)
@@ -75,6 +76,7 @@ class EditPreferencesActivity : AppCompatActivity() {
         userRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 foodList.clear()  // 清空舊資料
+                allergyList.clear()
                 snapshot.child("food").children.forEach {
                     it.getValue(String::class.java)?.let { food -> foodList.add(food) }
                 }
@@ -116,6 +118,7 @@ class EditPreferencesActivity : AppCompatActivity() {
         allergyAdapter.notifyDataSetChanged()
 
         val allergyRef = database.child("users").child(userId).child("preferences").child("allergies")
+
         allergyRef.setValue(allergyList)
             .addOnFailureListener {
                 Toast.makeText(this, "刪除失敗", Toast.LENGTH_SHORT).show()
@@ -126,9 +129,12 @@ class EditPreferencesActivity : AppCompatActivity() {
     // 儲存偏好設定
     private fun savePreferences() {
         val userId = auth.currentUser?.uid ?: return
-        val userRef = database.child("users").child(userId).child("preferences").child("food")
 
-        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        val foodRef = database.child("users").child(userId).child("preferences").child("food")
+        val allergyRef = database.child("users").child(userId).child("preferences").child("allergies")
+
+        // Step 1: 儲存 Food
+        foodRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val firebaseFoodList = mutableListOf<String>()
 
@@ -136,27 +142,43 @@ class EditPreferencesActivity : AppCompatActivity() {
                     it.getValue(String::class.java)?.let { food -> firebaseFoodList.add(food) }
                 }
 
+                // 解析 EditText 的新食物
                 val foodText = foodEditText.text.toString().trim()
                 val newFoodList = foodText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+                // 合併
                 firebaseFoodList.addAll(newFoodList)
 
-                // 儲存 food 後，再儲存 allergies
-                userRef.setValue(firebaseFoodList)
+                foodRef.setValue(firebaseFoodList)
                     .addOnSuccessListener {
-                        // ✅ allergies 儲存邏輯放這裡
-                        val allergyRef = database.child("users").child(userId).child("preferences").child("allergies")
-                        val allergyText = allergyEditText.text.toString().trim()
-                        val newAllergies = allergyText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                        allergyList.addAll(newAllergies)
+                        // Step 2: 儲存 Allergies
+                        allergyRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val firebaseAllergyList = mutableListOf<String>()
 
-                        allergyRef.setValue(allergyList)
-                            .addOnSuccessListener {
-                                Toast.makeText(this@EditPreferencesActivity, "偏好資料已更新！", Toast.LENGTH_SHORT).show()
-                                finish()
+                                snapshot.children.forEach {
+                                    it.getValue(String::class.java)?.let { allergy -> firebaseAllergyList.add(allergy) }
+                                }
+
+                                val allergyText = allergyEditText.text.toString().trim()
+                                val newAllergyList = allergyText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+                                firebaseAllergyList.addAll(newAllergyList)
+
+                                allergyRef.setValue(firebaseAllergyList)
+                                    .addOnSuccessListener {
+                                        Toast.makeText(this@EditPreferencesActivity, "偏好資料已更新！", Toast.LENGTH_SHORT).show()
+                                        finish()
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(this@EditPreferencesActivity, "過敏原儲存失敗", Toast.LENGTH_SHORT).show()
+                                    }
                             }
-                            .addOnFailureListener {
-                                Toast.makeText(this@EditPreferencesActivity, "過敏原儲存失敗", Toast.LENGTH_SHORT).show()
+
+                            override fun onCancelled(error: DatabaseError) {
+                                Log.e("Firebase", "讀取過敏原失敗: ${error.message}")
                             }
+                        })
                     }
                     .addOnFailureListener {
                         Toast.makeText(this@EditPreferencesActivity, "食物儲存失敗", Toast.LENGTH_SHORT).show()
@@ -164,7 +186,7 @@ class EditPreferencesActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase", "讀取失敗: ${error.message}")
+                Log.e("Firebase", "讀取食物失敗: ${error.message}")
             }
         })
     }
