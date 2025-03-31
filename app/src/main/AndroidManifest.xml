@@ -13,6 +13,12 @@
         android:theme="@style/Theme.Dinner_app"
         tools:targetApi="31">
         <activity
+            android:name=".RecommendActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PartnerActivity"
+            android:exported="false" />
+        <activity
             android:name=".FoodAdapter"
             android:exported="false" />
         <activity

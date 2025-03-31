@@ -46,5 +46,20 @@
         android:layout_height="wrap_content"
         android:text="    登出    "
         android:layout_marginTop="30dp" />
+    <!-- 同行者按鈕 -->
+    <Button
+        android:id="@+id/partnerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="查看同行者"
+        android:layout_marginTop="16dp" />
+
+    <!--晚餐推薦-->
+    <Button
+        android:id="@+id/recommendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🍽 晚餐推薦"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

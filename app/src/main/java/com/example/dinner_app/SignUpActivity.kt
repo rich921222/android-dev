@@ -57,6 +57,13 @@ class SignUpActivity : AppCompatActivity() {
                         userRef.child("preferences").setValue(preferences)
                             .addOnSuccessListener {
                                 Log.d("Signup", "使用者喜好資料已更新")
+
+                                // ✅ 儲存 email → UID 映射（這裡才安全！）
+                                val emailKey = email.lowercase().replace(".", ",")
+                                FirebaseDatabase.getInstance().getReference("emailToUid")
+                                    .child(emailKey)
+                                    .setValue(user.uid)
+
                                 // 註冊成功後跳轉到 MainActivity
                                 val intent = Intent(this, MainActivity::class.java)
                                 startActivity(intent)

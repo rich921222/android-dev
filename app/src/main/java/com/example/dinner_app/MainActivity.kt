@@ -20,6 +20,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private lateinit var preferencesContainer: LinearLayout
     private var preferencesListener: ValueEventListener? = null
+    private var partnerEmailList: List<String> = emptyList()
+
+    private val partnerActivityLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            partnerEmailList = data?.getStringArrayListExtra("partner_emails") ?: emptyList()
+            Log.d("Main", "收到同行者名單: $partnerEmailList")
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +53,11 @@ class MainActivity : AppCompatActivity() {
         // 登出按鈕
         val logoutButton: Button = findViewById(R.id.logoutButton)
         logoutButton.setOnClickListener {
+            val userId = auth.currentUser?.uid
+            if (userId != null) {
+                val userRef = database.child("users").child(userId).child("preferences")
+                preferencesListener?.let { userRef.removeEventListener(it) } // ✅ 先移除監聽器
+            }
             auth.signOut() // 登出 Firebase
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -50,6 +67,27 @@ class MainActivity : AppCompatActivity() {
         val editPreferencesButton: Button = findViewById(R.id.editPreferencesButton)
         editPreferencesButton.setOnClickListener {
             startActivity(Intent(this, EditPreferencesActivity::class.java))
+        }
+        //鈕跳轉到 PartnerActivity
+        val partnerButton: Button = findViewById(R.id.partnerButton)
+        partnerButton.setOnClickListener {
+            partnerActivityLauncher.launch(Intent(this, PartnerActivity::class.java))
+        }
+
+        //推薦按鈕
+        val recommendButton: Button = findViewById(R.id.recommendButton)
+        recommendButton.setOnClickListener {
+            val intent = Intent(this, RecommendActivity::class.java)
+
+            // 傳遞自己 email + 所有 partner email（用來查資料）
+            val currentEmail = auth.currentUser?.email ?: ""
+            val allEmails = ArrayList<String>().apply {
+                add(currentEmail)
+                addAll(partnerEmailList)
+            }
+
+            intent.putStringArrayListExtra("all_emails", allEmails)
+            startActivity(intent)
         }
     }
 
