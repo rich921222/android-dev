@@ -27,7 +27,7 @@ class RecommendActivity : AppCompatActivity() {
         resultTextView = findViewById(R.id.resultTextView)
         drawButton = findViewById(R.id.drawButton)
 
-        allEmails = intent.getStringArrayListExtra("all_emails") ?: emptyList()
+        allEmails = MainActivity.sessionPartnerEmails
         Log.d("Recommend", "收到 Email 列表: $allEmails")
 
         if (allEmails.isNotEmpty()) {

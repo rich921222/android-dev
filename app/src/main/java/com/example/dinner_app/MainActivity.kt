@@ -16,6 +16,11 @@ import com.google.android.flexbox.JustifyContent
 
 class MainActivity : AppCompatActivity() {
 
+    //跨畫面同行者暫存器
+    companion object {
+        var sessionPartnerEmails: MutableList<String> = mutableListOf()
+    }
+
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private lateinit var preferencesContainer: LinearLayout
@@ -60,6 +65,7 @@ class MainActivity : AppCompatActivity() {
             }
             auth.signOut() // 登出 Firebase
             startActivity(Intent(this, LoginActivity::class.java))
+            MainActivity.sessionPartnerEmails.clear()
             finish()
         }
 
@@ -79,14 +85,14 @@ class MainActivity : AppCompatActivity() {
         recommendButton.setOnClickListener {
             val intent = Intent(this, RecommendActivity::class.java)
 
-            // 傳遞自己 email + 所有 partner email（用來查資料）
-            val currentEmail = auth.currentUser?.email ?: ""
-            val allEmails = ArrayList<String>().apply {
-                add(currentEmail)
-                addAll(partnerEmailList)
-            }
-
-            intent.putStringArrayListExtra("all_emails", allEmails)
+//            // 傳遞自己 email + 所有 partner email（用來查資料）
+//            val currentEmail = auth.currentUser?.email ?: ""
+//            val allEmails = ArrayList<String>().apply {
+//                add(currentEmail)
+//                addAll(partnerEmailList)
+//            }
+//
+//            intent.putStringArrayListExtra("all_emails", allEmails)
             startActivity(intent)
         }
     }

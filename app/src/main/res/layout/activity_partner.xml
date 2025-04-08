@@ -32,6 +32,22 @@
             android:orientation="vertical" />
     </ScrollView>
 
+    <TextView
+        android:id="@+id/selectedPartnersTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="👥 已選擇同行者"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/selectedPartnerList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone" />
+
     <Button
         android:id="@+id/backToMainButton"
         android:layout_width="wrap_content"
