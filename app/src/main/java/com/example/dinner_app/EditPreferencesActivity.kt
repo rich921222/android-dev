@@ -46,11 +46,11 @@ class EditPreferencesActivity : AppCompatActivity() {
         allergyRecyclerView = findViewById(R.id.allergyRecyclerView)
 
         // 設定 RecyclerView
-        foodAdapter = FoodAdapter(foodList,userRef,database,auth,{ food -> removeFood(food) },"food")
+        foodAdapter = FoodAdapter(foodList,{ food -> removeFood(food) })
         foodRecyclerView.layoutManager = LinearLayoutManager(this)
         foodRecyclerView.adapter = foodAdapter
 
-        allergyAdapter = FoodAdapter(allergyList, userRef, database, auth,{ allergy -> removeAllergy(allergy) }, "allergies")
+        allergyAdapter = FoodAdapter(allergyList,{ allergy -> removeAllergy(allergy) })
         allergyRecyclerView.layoutManager = LinearLayoutManager(this)
         allergyRecyclerView.adapter = allergyAdapter
 

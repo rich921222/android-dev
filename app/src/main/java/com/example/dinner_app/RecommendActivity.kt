@@ -27,10 +27,15 @@ class RecommendActivity : AppCompatActivity() {
         resultTextView = findViewById(R.id.resultTextView)
         drawButton = findViewById(R.id.drawButton)
 
+        val currentUserEmail = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.email ?: ""
         allEmails = MainActivity.sessionPartnerEmails
         Log.d("Recommend", "收到 Email 列表: $allEmails")
 
         if (allEmails.isNotEmpty()) {
+            loadAllUsersRatings()
+        }
+        else{
+            allEmails = listOf(currentUserEmail)
             loadAllUsersRatings()
         }
 

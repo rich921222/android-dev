@@ -14,11 +14,7 @@ import com.google.firebase.database.ValueEventListener
 
 class FoodAdapter(
     private var foodList: MutableList<String>,
-    private val userRef: DatabaseReference,  // ✅ 傳入 Firebase DatabaseReference
-    private val database: DatabaseReference,  // Firebase DatabaseReference
-    private val auth: FirebaseAuth,  // 傳入 FirebaseAuth 實例
     private val onDeleteClick: (String) -> Unit,  // ✅ 讓 Adapter 支援刪除 Callback
-    private val dataType: String // "food" or "allergies"
 ) : RecyclerView.Adapter<FoodAdapter.FoodViewHolder>() {
 
     class FoodViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -37,45 +33,9 @@ class FoodAdapter(
 
         // 按下刪除按鈕後，從 Firebase 和本地刪除
         holder.deleteButton.setOnClickListener {
-            removeFood(position)
+            onDeleteClick(foodItem)
         }
     }
 
     override fun getItemCount(): Int = foodList.size
-
-    private fun removeFood(position: Int) {
-        val foodToRemove = foodList[position]  // 取得要刪除的食物
-        val updatedList = foodList.toMutableList()
-        updatedList.removeAt(position)  // 從本地列表中刪除
-
-        // 使用 Firebase 中的 orderByValue 查找要刪除的食物
-        val userId = auth.currentUser?.uid ?: return
-        val userRef = database.child("users").child(userId).child("preferences").child(dataType)
-
-        // 查找並刪除食物
-        userRef.orderByValue().equalTo(foodToRemove).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // 刪除 Firebase 資料庫中的食物項目
-                    for (child in snapshot.children) {
-                        child.ref.removeValue().addOnCompleteListener {
-                            // 成功刪除後，更新本地列表並刷新 RecyclerView
-                            foodList = updatedList
-                            notifyItemRemoved(position)
-                            notifyItemRangeChanged(position, foodList.size)
-                        }.addOnFailureListener {
-                            Log.e("Firebase", "刪除 Firebase 資料時發生錯誤: ${it.message}")
-                        }
-                    }
-                } else {
-                    Log.e("Firebase", "未找到該食物項目：$foodToRemove")
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase", "查詢 Firebase 時發生錯誤: ${error.message}")
-            }
-        })
-    }
-
 }

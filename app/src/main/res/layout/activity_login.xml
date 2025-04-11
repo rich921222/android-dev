@@ -5,7 +5,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="30dp"
-    android:gravity="center">
+    android:gravity="center"
+    android:background="@drawable/edit_pref_background">  <!-- 背景圖片 -->
 
     <!-- 新增一個 ImageView 放在最上方 -->
     <com.google.android.material.imageview.ShapeableImageView
