@@ -62,5 +62,12 @@
         android:layout_height="wrap_content"
         android:text="🍽 晚餐推薦"
         android:layout_marginTop="16dp" />
+    <!--最近的推薦紀錄-->
+    <Button
+        android:id="@+id/historyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📜 歷史紀錄回顧"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

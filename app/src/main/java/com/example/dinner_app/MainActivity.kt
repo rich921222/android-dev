@@ -95,6 +95,11 @@ class MainActivity : AppCompatActivity() {
 //            intent.putStringArrayListExtra("all_emails", allEmails)
             startActivity(intent)
         }
+        //歷史紀錄按鈕
+        val historyButton: Button = findViewById(R.id.historyButton)
+        historyButton.setOnClickListener {
+            startActivity(Intent(this, HistoryActivity::class.java))
+        }
     }
 
     override fun onStart() {
