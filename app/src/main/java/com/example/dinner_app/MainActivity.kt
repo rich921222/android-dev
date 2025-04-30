@@ -7,12 +7,17 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.flexbox.FlexboxLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.JustifyContent
+import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +31,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var preferencesContainer: LinearLayout
     private var preferencesListener: ValueEventListener? = null
     private var partnerEmailList: List<String> = emptyList()
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: NavigationView
+    private lateinit var toolbar: Toolbar
 
     private val partnerActivityLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
@@ -47,6 +55,11 @@ class MainActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance().reference
         preferencesContainer = findViewById(R.id.preferencesContainer)
 
+        //隱藏選單
+        drawerLayout = findViewById(R.id.drawerLayout)
+        navigationView = findViewById(R.id.navigationView)
+        toolbar = findViewById(R.id.toolbar)
+
         // 檢查使用者是否已經登入
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -55,51 +68,84 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // 登出按鈕
-        val logoutButton: Button = findViewById(R.id.logoutButton)
-        logoutButton.setOnClickListener {
-            val userId = auth.currentUser?.uid
-            if (userId != null) {
-                val userRef = database.child("users").child(userId).child("preferences")
-                preferencesListener?.let { userRef.removeEventListener(it) } // ✅ 先移除監聽器
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = ""
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.nav_edit_preferences -> startActivity(Intent(this, EditPreferencesActivity::class.java))
+                R.id.nav_logout -> {
+                    // TODO: 登出
+                    val userId = auth.currentUser?.uid
+                    if (userId != null) {
+                        val userRef = database.child("users").child(userId).child("preferences")
+                        preferencesListener?.let { userRef.removeEventListener(it) }
+                    }
+                    auth.signOut()
+                    MainActivity.sessionPartnerEmails.clear()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }
+                R.id.nav_partner -> partnerActivityLauncher.launch(Intent(this, PartnerActivity::class.java))
+                R.id.nav_recommend -> startActivity(Intent(this, RecommendActivity::class.java))
+                R.id.nav_history -> startActivity(Intent(this, HistoryActivity::class.java))
             }
-            auth.signOut() // 登出 Firebase
-            startActivity(Intent(this, LoginActivity::class.java))
-            MainActivity.sessionPartnerEmails.clear()
-            finish()
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
         }
 
-        // 修改按鈕
-        val editPreferencesButton: Button = findViewById(R.id.editPreferencesButton)
-        editPreferencesButton.setOnClickListener {
-            startActivity(Intent(this, EditPreferencesActivity::class.java))
-        }
-        //鈕跳轉到 PartnerActivity
-        val partnerButton: Button = findViewById(R.id.partnerButton)
-        partnerButton.setOnClickListener {
-            partnerActivityLauncher.launch(Intent(this, PartnerActivity::class.java))
-        }
 
-        //推薦按鈕
-        val recommendButton: Button = findViewById(R.id.recommendButton)
-        recommendButton.setOnClickListener {
-            val intent = Intent(this, RecommendActivity::class.java)
-
-//            // 傳遞自己 email + 所有 partner email（用來查資料）
-//            val currentEmail = auth.currentUser?.email ?: ""
-//            val allEmails = ArrayList<String>().apply {
-//                add(currentEmail)
-//                addAll(partnerEmailList)
+//        // 登出按鈕
+//        val logoutButton: Button = findViewById(R.id.logoutButton)
+//        logoutButton.setOnClickListener {
+//            val userId = auth.currentUser?.uid
+//            if (userId != null) {
+//                val userRef = database.child("users").child(userId).child("preferences")
+//                preferencesListener?.let { userRef.removeEventListener(it) } // ✅ 先移除監聽器
 //            }
+//            auth.signOut() // 登出 Firebase
+//            startActivity(Intent(this, LoginActivity::class.java))
+//            MainActivity.sessionPartnerEmails.clear()
+//            finish()
+//        }
+
+//        // 修改按鈕
+//        val editPreferencesButton: Button = findViewById(R.id.editPreferencesButton)
+//        editPreferencesButton.setOnClickListener {
+//            startActivity(Intent(this, EditPreferencesActivity::class.java))
+//        }
+//        //鈕跳轉到 PartnerActivity
+//        val partnerButton: Button = findViewById(R.id.partnerButton)
+//        partnerButton.setOnClickListener {
+//            partnerActivityLauncher.launch(Intent(this, PartnerActivity::class.java))
+//        }
 //
-//            intent.putStringArrayListExtra("all_emails", allEmails)
-            startActivity(intent)
-        }
-        //歷史紀錄按鈕
-        val historyButton: Button = findViewById(R.id.historyButton)
-        historyButton.setOnClickListener {
-            startActivity(Intent(this, HistoryActivity::class.java))
-        }
+//        //推薦按鈕
+//        val recommendButton: Button = findViewById(R.id.recommendButton)
+//        recommendButton.setOnClickListener {
+//            val intent = Intent(this, RecommendActivity::class.java)
+//
+////            // 傳遞自己 email + 所有 partner email（用來查資料）
+////            val currentEmail = auth.currentUser?.email ?: ""
+////            val allEmails = ArrayList<String>().apply {
+////                add(currentEmail)
+////                addAll(partnerEmailList)
+////            }
+////
+////            intent.putStringArrayListExtra("all_emails", allEmails)
+//            startActivity(intent)
+//        }
+//        //歷史紀錄按鈕
+//        val historyButton: Button = findViewById(R.id.historyButton)
+//        historyButton.setOnClickListener {
+//            startActivity(Intent(this, HistoryActivity::class.java))
+//        }
     }
 
     override fun onStart() {

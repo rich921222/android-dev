@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/nav_edit_preferences" android:title="✏️ 修改喜好" />
+    <item android:id="@+id/nav_partner" android:title="👥 查看同行者" />
+    <item android:id="@+id/nav_recommend" android:title="🍽 晚餐推薦" />
+    <item android:id="@+id/nav_history" android:title="📜 歷史紀錄回顧" />
+    <!-- 分隔線 -->
+    <item android:title=""/>
+
+    <!-- 登出項目放最後 -->
+    <item android:id="@+id/nav_logout"
+        android:title="登出"
+        android:icon="@drawable/ic_logout_24" />
+</menu>

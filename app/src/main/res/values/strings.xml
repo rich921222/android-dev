@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Dinner_app</string>
+    <string name="navigation_drawer_open">開啟選單</string>
+    <string name="navigation_drawer_close">關閉選單</string>
 </resources>

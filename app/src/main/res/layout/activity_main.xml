@@ -1,73 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center"
-    android:background="@drawable/edit_pref_background">
+    android:layout_height="match_parent">
 
-    <!-- 顯示歡迎訊息 -->
-    <TextView
-        android:id="@+id/welcomeTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="歡迎使用 Dinner App!"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="20dp" />
-
-    <!-- 喜好資料顯示區塊 -->
-    <ScrollView
+    <!-- 主畫面內容 -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center"
+        android:background="@drawable/edit_pref_background">
 
-        <LinearLayout
-            android:id="@+id/preferencesContainer"
+        <!-- 左上三條線的 Toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="8dp" />
-    </ScrollView>
+            android:background="@android:color/transparent"
+            android:title=""
+            android:titleTextColor="@android:color/white" />
 
+        <TextView
+            android:id="@+id/welcomeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="歡迎使用 Dinner App!"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp" />
 
-    <Button
-        android:id="@+id/editPreferencesButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="修改喜好"
-        android:layout_marginTop="20dp" />
+        <!-- 喜好資料顯示區塊 -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="16dp">
 
-    <!-- 登出按鈕 -->
-    <Button
-        android:id="@+id/logoutButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="    登出    "
-        android:layout_marginTop="30dp" />
-    <!-- 同行者按鈕 -->
-    <Button
-        android:id="@+id/partnerButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="查看同行者"
-        android:layout_marginTop="16dp" />
+            <LinearLayout
+                android:id="@+id/preferencesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp" />
+        </ScrollView>
 
-    <!--晚餐推薦-->
-    <Button
-        android:id="@+id/recommendButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="🍽 晚餐推薦"
-        android:layout_marginTop="16dp" />
-    <!--最近的推薦紀錄-->
-    <Button
-        android:id="@+id/historyButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="📜 歷史紀錄回顧"
-        android:layout_marginTop="16dp" />
+    </LinearLayout>
 
-</LinearLayout>
+    <!-- 側邊選單 -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@drawable/navigation_view_background"
+        app:menu="@menu/drawer_menu" />
+</androidx.drawerlayout.widget.DrawerLayout>
+
