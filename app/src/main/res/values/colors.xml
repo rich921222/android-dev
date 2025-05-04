@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="nav_text_color">#222222</color>  <!-- 深灰，適合亮背景 -->
+    <color name="nav_icon_color">#222222</color>  <!-- 和文字一樣深 -->
 </resources>

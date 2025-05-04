@@ -9,6 +9,7 @@
 
     <EditText
         android:id="@+id/inputEmail"
+        style="@style/AppEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="請輸入同行者 Email" />

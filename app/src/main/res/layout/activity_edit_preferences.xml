@@ -9,15 +9,25 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="請輸入你的喜好食物 (用逗號分隔)"
+        android:text="請輸入你的喜好食物"
         android:textSize="16sp"
         android:layout_marginBottom="8dp" />
 
     <EditText
         android:id="@+id/foodEditText"
+        style="@style/AppEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="例如: 壽司, 披薩, 牛排" />
+        android:hint="例如: 壽司" />
+
+    <EditText
+        android:id="@+id/foodRatingEditText"
+        style="@style/AppEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="輸入評分 (1~5)"
+        android:inputType="number"
+        android:maxLength="1" />
 
     <!-- 讓 RecyclerView 在 NestedScrollView 內滾動 -->
     <androidx.core.widget.NestedScrollView
@@ -38,16 +48,17 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="請輸入你的過敏原 (用逗號分隔)"
+        android:text="請輸入你的過敏原"
         android:textSize="16sp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp" />
 
     <EditText
         android:id="@+id/allergiesEditText"
+        style="@style/AppEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="例如: 花生, 奶製品" />
+        android:hint="例如: 花生" />
 
     <!-- 讓 RecyclerView 在 NestedScrollView 內滾動 -->
     <androidx.core.widget.NestedScrollView

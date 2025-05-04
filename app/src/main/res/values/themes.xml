@@ -3,6 +3,8 @@
     <style name="Base.Theme.Dinner_app" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:textColor">#222222</item> <!-- 主文字顏色 -->
+        <item name="android:textColorHint">#66000000</item> <!-- 提示文字顏色 -->
     </style>
 
     <style name="Theme.Dinner_app" parent="Base.Theme.Dinner_app" />

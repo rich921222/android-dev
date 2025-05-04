@@ -31,6 +31,9 @@ class FoodAdapter(
         val foodItem = foodList[position]
         holder.foodTextView.text = foodItem
 
+        // 🔧 只有在 foodList 不為空時才顯示刪除按鈕
+        holder.deleteButton.visibility = if (foodList.isNotEmpty()) View.VISIBLE else View.GONE
+
         // 按下刪除按鈕後，從 Firebase 和本地刪除
         holder.deleteButton.setOnClickListener {
             onDeleteClick(foodItem)

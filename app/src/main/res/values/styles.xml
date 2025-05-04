@@ -6,4 +6,9 @@
         <!-- 50% 代表將所有角落裁成圓形 -->
         <item name="cornerSize">50%</item>
     </style>
+
+    <style name="AppEditText">
+        <item name="android:textColor">#222222</item>
+        <item name="android:textColorHint">#66000000</item>
+    </style>
 </resources>

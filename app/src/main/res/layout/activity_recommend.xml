@@ -56,6 +56,12 @@
         android:enabled="false" />
 
     <Button
+        android:id="@+id/publicRecommendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="公共推薦" />
+
+    <Button
         android:id="@+id/backToMainButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

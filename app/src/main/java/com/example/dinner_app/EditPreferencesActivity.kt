@@ -18,6 +18,7 @@ class EditPreferencesActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
 
     private lateinit var foodEditText: EditText
+    private lateinit var foodRatingEditText: EditText
     private lateinit var foodRecyclerView: RecyclerView
     private lateinit var foodAdapter: FoodAdapter
     private val foodList = mutableListOf<String>()
@@ -40,6 +41,7 @@ class EditPreferencesActivity : AppCompatActivity() {
         val userRef = database.child("users").child(userId).child("preferences")
 
         foodEditText = findViewById(R.id.foodEditText)
+        foodRatingEditText = findViewById(R.id.foodRatingEditText)
         foodRecyclerView = findViewById(R.id.foodRecyclerView)
 
         allergyEditText = findViewById(R.id.allergiesEditText)
@@ -126,69 +128,80 @@ class EditPreferencesActivity : AppCompatActivity() {
     }
 
 
-    // 儲存偏好設定
     private fun savePreferences() {
         val userId = auth.currentUser?.uid ?: return
 
+        val foodText = foodEditText.text.toString().trim()
+        val ratingText = foodRatingEditText.text.toString().trim()
+        val allergyText = allergyEditText.text.toString().trim()
+
+        val ratingValue = ratingText.toIntOrNull()
+
+        if (foodText.isEmpty()) {
+            Toast.makeText(this, "請輸入食物名稱", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (ratingValue == null || ratingValue !in 1..5) {
+            Toast.makeText(this, "請輸入 1 到 5 分的評分", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val foodRef = database.child("users").child(userId).child("preferences").child("food")
-        val allergyRef = database.child("users").child(userId).child("preferences").child("allergies")
+        val ratingRef = database.child("users").child(userId).child("preferences").child("ratings").child(foodText)
 
-        // Step 1: 儲存 Food
-        foodRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val firebaseFoodList = mutableListOf<String>()
-
-                snapshot.children.forEach {
-                    it.getValue(String::class.java)?.let { food -> firebaseFoodList.add(food) }
-                }
-
-                // 解析 EditText 的新食物
-                val foodText = foodEditText.text.toString().trim()
-                val newFoodList = foodText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-
-                // 合併
-                firebaseFoodList.addAll(newFoodList)
-
-                foodRef.setValue(firebaseFoodList)
+        foodList.add(foodText)
+        foodRef.setValue(foodList)
+            .addOnSuccessListener {
+                ratingRef.setValue(ratingValue)
                     .addOnSuccessListener {
-                        // Step 2: 儲存 Allergies
-                        allergyRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                val firebaseAllergyList = mutableListOf<String>()
-
-                                snapshot.children.forEach {
-                                    it.getValue(String::class.java)?.let { allergy -> firebaseAllergyList.add(allergy) }
-                                }
-
-                                val allergyText = allergyEditText.text.toString().trim()
-                                val newAllergyList = allergyText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-
-                                firebaseAllergyList.addAll(newAllergyList)
-
-                                allergyRef.setValue(firebaseAllergyList)
-                                    .addOnSuccessListener {
-                                        Toast.makeText(this@EditPreferencesActivity, "偏好資料已更新！", Toast.LENGTH_SHORT).show()
-                                        finish()
-                                    }
-                                    .addOnFailureListener {
-                                        Toast.makeText(this@EditPreferencesActivity, "過敏原儲存失敗", Toast.LENGTH_SHORT).show()
-                                    }
+                        // 新增：累加 public_data 的 ratings
+                        val publicRatingRef = database.child("public_data").child("ratings").child(foodText)
+                        publicRatingRef.runTransaction(object : Transaction.Handler {
+                            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                                val currentValue = currentData.getValue(Int::class.java) ?: 0
+                                currentData.value = currentValue + ratingValue
+                                return Transaction.success(currentData)
                             }
 
-                            override fun onCancelled(error: DatabaseError) {
-                                Log.e("Firebase", "讀取過敏原失敗: ${error.message}")
+                            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                                if (error != null) {
+                                    Log.e("PublicRating", "更新 public_data 失敗: ${error.message}")
+                                } else {
+                                    Log.d("PublicRating", "public_data 已更新：$foodText +$ratingValue")
+                                }
                             }
                         })
+                        // 接著儲存 allergy（如果有輸入）
+                        if (allergyText.isNotEmpty()) {
+                            val allergyRef = database.child("users").child(userId).child("preferences").child("allergies")
+                            allergyList.add(allergyText)
+                            allergyRef.setValue(allergyList)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "已新增所有資料", Toast.LENGTH_SHORT).show()
+                                    foodEditText.text.clear()
+                                    foodRatingEditText.text.clear()
+                                    allergyEditText.text.clear()
+                                    foodAdapter.notifyDataSetChanged()
+                                    allergyAdapter.notifyDataSetChanged()
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(this, "過敏原儲存失敗", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            Toast.makeText(this, "已新增食物與評分", Toast.LENGTH_SHORT).show()
+                            foodEditText.text.clear()
+                            foodRatingEditText.text.clear()
+                            foodAdapter.notifyDataSetChanged()
+                        }
                     }
                     .addOnFailureListener {
-                        Toast.makeText(this@EditPreferencesActivity, "食物儲存失敗", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "評分儲存失敗", Toast.LENGTH_SHORT).show()
                     }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase", "讀取食物失敗: ${error.message}")
+            .addOnFailureListener {
+                Toast.makeText(this, "食物儲存失敗", Toast.LENGTH_SHORT).show()
             }
-        })
     }
 
 }

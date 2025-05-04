@@ -125,6 +125,11 @@ class RecommendActivity : AppCompatActivity() {
             animateStep(0)
         }
 
+        val publicRecommendButton: Button = findViewById(R.id.publicRecommendButton)
+        publicRecommendButton.setOnClickListener {
+            loadPublicRatings()
+        }
+
         val backToMainButton: Button = findViewById(R.id.backToMainButton)
         backToMainButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
@@ -183,6 +188,34 @@ class RecommendActivity : AppCompatActivity() {
                 }
             })
     }
+
+    private fun loadPublicRatings() {
+        drawButton.isEnabled = false
+        foodScores.clear()
+        totalScore = 0
+
+        database.child("public_data").child("ratings")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (child in snapshot.children) {
+                        val food = child.key ?: continue
+                        val score = child.getValue(Int::class.java) ?: continue
+                        foodScores[food] = score
+                        totalScore += score
+                    }
+                    if (foodScores.isEmpty()) {
+                        resultTextView.text = "公共資料目前無法使用，請稍後再試。"
+                        return
+                    }
+                    drawButton.performClick() // ✅ 直接觸發原本的推薦流程
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("PublicRecommend", "讀取公共推薦失敗: ${error.message}")
+                }
+            })
+    }
+
 
     private fun drawRecommendation(): String {
         val rand = Random.nextDouble()

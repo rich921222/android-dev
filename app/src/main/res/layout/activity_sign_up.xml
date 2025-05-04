@@ -8,6 +8,7 @@
 
     <EditText
         android:id="@+id/emailEditText"
+        style="@style/AppEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Email"
@@ -15,6 +16,7 @@
 
     <EditText
         android:id="@+id/passwordEditText"
+        style="@style/AppEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Password"
@@ -22,6 +24,7 @@
     <!-- Food Preferences Input -->
     <EditText
         android:id="@+id/foodEditText"
+        style="@style/AppEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Food Preferences (comma separated)"
@@ -30,6 +33,7 @@
     <!-- Allergies Input -->
     <EditText
         android:id="@+id/allergiesEditText"
+        style="@style/AppEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Allergies (comma separated)"
