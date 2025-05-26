@@ -4,6 +4,9 @@
     <item android:id="@+id/nav_partner" android:title="👥 查看同行者" />
     <item android:id="@+id/nav_recommend" android:title="🍽 晚餐推薦" />
     <item android:id="@+id/nav_history" android:title="📜 歷史紀錄回顧" />
+    <item
+        android:id="@+id/nav_comments"
+        android:title="💬 評論區" />
     <!-- 分隔線 -->
     <item android:title=""/>
 

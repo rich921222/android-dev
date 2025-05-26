@@ -1,93 +1,103 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp"
-    android:gravity="center"
     android:background="@drawable/edit_pref_background">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="請輸入你的喜好食物"
-        android:textSize="16sp"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/foodEditText"
-        style="@style/AppEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="例如: 壽司" />
-
-    <EditText
-        android:id="@+id/foodRatingEditText"
-        style="@style/AppEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="輸入評分 (1~5)"
-        android:inputType="number"
-        android:maxLength="1" />
-
-    <!-- 讓 RecyclerView 在 NestedScrollView 內滾動 -->
+    <!-- 可滾動內容區域 -->
     <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1">
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/foodRecyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="100dp"
-            android:maxHeight="200dp" /> <!-- 限制最大高度，避免擠壓其他 UI -->
+            android:orientation="vertical">
 
+            <!-- 食物輸入區 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="請輸入你的喜好食物"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/foodEditText"
+                style="@style/AppEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="例如: 壽司" />
+
+            <EditText
+                android:id="@+id/foodRatingEditText"
+                style="@style/AppEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="輸入評分 (1~5)"
+                android:inputType="number"
+                android:maxLength="1" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/foodRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+            <!-- 過敏原輸入區 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="請輸入你的過敏原"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/allergiesEditText"
+                style="@style/AppEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="例如: 花生" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/allergyRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- 固定按鈕區 -->
+    <LinearLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="請輸入你的過敏原"
-        android:textSize="16sp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp" />
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <EditText
-        android:id="@+id/allergiesEditText"
-        style="@style/AppEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="例如: 花生" />
-
-    <!-- 讓 RecyclerView 在 NestedScrollView 內滾動 -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/allergyRecyclerView"
+        <Button
+            android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="100dp"
-            android:maxHeight="200dp" />
+            android:text="儲存" />
 
-    </androidx.core.widget.NestedScrollView>
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="取消"
+            android:layout_marginTop="10dp" />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/saveButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="儲存"
-        android:layout_marginTop="20dp" />
-
-    <Button
-        android:id="@+id/cancelButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="取消"
-        android:layout_marginTop="10dp" />
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

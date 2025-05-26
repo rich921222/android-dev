@@ -95,6 +95,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_partner -> partnerActivityLauncher.launch(Intent(this, PartnerActivity::class.java))
                 R.id.nav_recommend -> startActivity(Intent(this, RecommendActivity::class.java))
                 R.id.nav_history -> startActivity(Intent(this, HistoryActivity::class.java))
+
+                R.id.nav_comments -> startActivity(Intent(this, CommentListActivity::class.java))
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
