@@ -41,9 +41,9 @@ class CommentEditActivity : AppCompatActivity() {
                 .child("preferences").child("comment").child(foodName)
                 .setValue(comment)
 
-            // 2️⃣ 儲存至公共評論區（push 到 public_data > comment > foodName）
+            // 2️⃣ 儲存至公共評論區
             val publicCommentRef = database.child("public_data")
-                .child("comment").child(foodName).push()
+                .child("comment").child(foodName).child(uid)
             publicCommentRef.setValue(comment)
 
             Toast.makeText(this, "評論已儲存", Toast.LENGTH_SHORT).show()

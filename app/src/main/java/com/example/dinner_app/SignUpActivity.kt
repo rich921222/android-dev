@@ -22,59 +22,41 @@ class SignUpActivity : AppCompatActivity() {
 
         val emailEditText: EditText = findViewById(R.id.emailEditText)
         val passwordEditText: EditText = findViewById(R.id.passwordEditText)
-        val foodEditText: EditText = findViewById(R.id.foodEditText)
-        val allergiesEditText: EditText = findViewById(R.id.allergiesEditText)
         val signupButton: Button = findViewById(R.id.signupButton)
 
         signupButton.setOnClickListener {
             val email = emailEditText.text.toString()
             val password = passwordEditText.text.toString()
-            val food = foodEditText.text.toString().split(",").map { it.trim() }
-            val allergies = allergiesEditText.text.toString().split(",").map { it.trim() }
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                registerUser(email, password, food, allergies)
+                registerUser(email, password)
             } else {
                 Toast.makeText(this, "請輸入有效的 email 和密碼", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun registerUser(email: String, password: String, food: List<String>, allergies: List<String>) {
+    private fun registerUser(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Log.d("SignUp", "註冊成功")
                     val user = auth.currentUser
-
                     user?.let {
-                        // 註冊成功後將初始資料寫入 Firebase
+                        // 初始化資料庫位置，只記錄基本節點
                         val userRef = FirebaseDatabase.getInstance().getReference("users").child(it.uid)
-                        val preferences = mapOf(
-                            "food" to food,
-                            "allergies" to allergies
-                        )
-                        userRef.child("preferences").setValue(preferences)
-                            .addOnSuccessListener {
-                                Log.d("Signup", "使用者喜好資料已更新")
+                        userRef.child("preferences").setValue(mapOf<String, Any>()) // 空 preferences，可選
 
-                                // ✅ 儲存 email → UID 映射（這裡才安全！）
-                                val emailKey = email.lowercase().replace(".", ",")
-                                FirebaseDatabase.getInstance().getReference("emailToUid")
-                                    .child(emailKey)
-                                    .setValue(user.uid)
+                        // 建立 email → uid 映射
+                        val emailKey = email.lowercase().replace(".", ",")
+                        FirebaseDatabase.getInstance().getReference("emailToUid")
+                            .child(emailKey)
+                            .setValue(user.uid)
 
-                                // 註冊成功後跳轉到 MainActivity
-                                val intent = Intent(this, MainActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("Signup", "寫入資料失敗: ${e.message}")
-                            }
+                        // 跳轉
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
                     }
                 } else {
-                    Log.e("SignUp", "註冊失敗: ${task.exception?.message}")
                     Toast.makeText(this, "註冊失敗: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }

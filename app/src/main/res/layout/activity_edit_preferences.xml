@@ -90,7 +90,7 @@
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="儲存" />
+            android:text="儲存"/>
 
         <Button
             android:id="@+id/cancelButton"

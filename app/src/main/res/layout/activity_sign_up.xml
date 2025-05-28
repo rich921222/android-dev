@@ -21,23 +21,6 @@
         android:layout_height="wrap_content"
         android:hint="Password"
         android:inputType="textPassword" />
-    <!-- Food Preferences Input -->
-    <EditText
-        android:id="@+id/foodEditText"
-        style="@style/AppEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Food Preferences (comma separated)"
-        android:inputType="text" />
-
-    <!-- Allergies Input -->
-    <EditText
-        android:id="@+id/allergiesEditText"
-        style="@style/AppEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Allergies (comma separated)"
-        android:inputType="text" />
 
     <Button
         android:id="@+id/signupButton"

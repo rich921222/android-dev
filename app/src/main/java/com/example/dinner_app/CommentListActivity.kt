@@ -35,12 +35,14 @@ class CommentListActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance().reference
         uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        database.child("users").child(uid).child("preferences").child("food")
+        database.child("public_data").child("ratings")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     foodList.clear()
-                    snapshot.children.forEach {
-                        it.getValue(String::class.java)?.let { food -> foodList.add(food) }
+                    snapshot.children.forEach { foodSnapshot ->
+                        foodSnapshot.key?.let { foodName ->
+                            foodList.add(foodName)
+                        }
                     }
                     adapter.notifyDataSetChanged()
                 }

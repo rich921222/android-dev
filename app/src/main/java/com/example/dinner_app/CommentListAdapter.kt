@@ -1,4 +1,5 @@
 package com.example.dinner_app
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,8 @@ class CommentListAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val foodName: TextView = view.findViewById(R.id.foodNameText)
         val editButton: Button = view.findViewById(R.id.editCommentButton)
+        val viewButton: Button = view.findViewById(R.id.viewCommentButton)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,5 +37,10 @@ class CommentListAdapter(
         val food = foodList[position]
         holder.foodName.text = food
         holder.editButton.setOnClickListener { onEditClick(food) }
+        holder.viewButton.setOnClickListener {
+            val intent = Intent(holder.itemView.context, PublicCommentActivity::class.java)
+            intent.putExtra("foodName", food)
+            holder.itemView.context.startActivity(intent)
+        }
     }
 }
