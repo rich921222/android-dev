@@ -194,13 +194,13 @@ class RecommendActivity : AppCompatActivity() {
         foodScores.clear()
         totalScore = 0
 
-        database.child("public_data").child("ratings")
+        database.child("public_data")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    for (child in snapshot.children) {
-                        val food = child.key ?: continue
-                        val score = child.getValue(Int::class.java) ?: continue
-                        foodScores[food] = score
+                    for (restaurantSnapshot in snapshot.children) {
+                        val foodName = restaurantSnapshot.key ?: continue
+                        val score = restaurantSnapshot.child("ratings").getValue(Int::class.java) ?: continue
+                        foodScores[foodName] = score
                         totalScore += score
                     }
                     if (foodScores.isEmpty()) {
@@ -214,6 +214,7 @@ class RecommendActivity : AppCompatActivity() {
                     Log.e("PublicRecommend", "讀取公共推薦失敗: ${error.message}")
                 }
             })
+
     }
 
 

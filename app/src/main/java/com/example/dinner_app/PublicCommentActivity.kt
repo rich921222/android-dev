@@ -19,6 +19,7 @@ class PublicCommentActivity : AppCompatActivity() {
         setContentView(R.layout.activity_public_comment)
 
         val foodName = intent.getStringExtra("foodName") ?: return
+        val location = intent.getStringExtra("location") ?: return  // 🌟 新增這行
         title = "評論：$foodName"
 
         recyclerView = findViewById(R.id.publicCommentRecyclerView)
@@ -27,7 +28,10 @@ class PublicCommentActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
 
         val ref = FirebaseDatabase.getInstance().reference
-            .child("public_data").child("comment").child(foodName)
+            .child("public_data")
+            .child(location)   // 🌟 加上地點
+            .child(foodName)
+            .child("comment")
 
         val backButton: Button = findViewById(R.id.backToCommentListButton)
         backButton.setOnClickListener {

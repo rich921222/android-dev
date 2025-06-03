@@ -15,7 +15,7 @@ import com.google.firebase.database.FirebaseDatabase
 
 class CommentListAdapter(
     private val foodList: List<String>,
-    private val onEditClick: (String) -> Unit
+    private val onEditClick: (String, String) -> Unit  // 接兩個 String
 ) : RecyclerView.Adapter<CommentListAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -35,11 +35,15 @@ class CommentListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val food = foodList[position]
-        holder.foodName.text = food
-        holder.editButton.setOnClickListener { onEditClick(food) }
+        val parts = food.split("|")
+        val location = parts[0]
+        val foodName = parts[1]
+        holder.foodName.text = "$foodName ($location)"  // 🔥 顯示 餐廳名 (地區)
+        holder.editButton.setOnClickListener { onEditClick(location, foodName) }
         holder.viewButton.setOnClickListener {
             val intent = Intent(holder.itemView.context, PublicCommentActivity::class.java)
-            intent.putExtra("foodName", food)
+            intent.putExtra("location", location)
+            intent.putExtra("foodName", foodName)
             holder.itemView.context.startActivity(intent)
         }
     }

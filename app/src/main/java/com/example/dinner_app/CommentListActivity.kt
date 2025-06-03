@@ -25,8 +25,9 @@ class CommentListActivity : AppCompatActivity() {
         }
         recyclerView = findViewById(R.id.commentRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = CommentListAdapter(foodList) { foodName ->
+        adapter = CommentListAdapter(foodList) { location, foodName ->
             val intent = Intent(this, CommentEditActivity::class.java)
+            intent.putExtra("location", location)   // 加地點
             intent.putExtra("foodName", foodName)
             startActivity(intent)
         }
@@ -35,19 +36,22 @@ class CommentListActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance().reference
         uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        database.child("public_data").child("ratings")
+        database.child("public_data")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     foodList.clear()
-                    snapshot.children.forEach { foodSnapshot ->
-                        foodSnapshot.key?.let { foodName ->
-                            foodList.add(foodName)
+                    snapshot.children.forEach { locationSnapshot ->
+                        val location = locationSnapshot.key ?: return@forEach
+                        locationSnapshot.children.forEach { restaurantSnapshot ->
+                            val foodName = restaurantSnapshot.key ?: return@forEach
+                            // 用 Pair 儲存 (地點, 餐廳名稱)
+                            foodList.add("$location|$foodName")
                         }
                     }
                     adapter.notifyDataSetChanged()
                 }
-
                 override fun onCancelled(error: DatabaseError) {}
             })
+
     }
 }
