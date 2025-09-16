@@ -150,89 +150,91 @@ class EditPreferencesActivity : AppCompatActivity() {
         val userId = auth.currentUser?.uid ?: return
 
         val foodText = foodEditText.text.toString().trim()
-        val ratingValue = ratingSpinner.selectedItem.toString().toInt()
         val allergyText = allergyEditText.text.toString().trim()
-        val selectedLocation = locationSpinner.selectedItem.toString().trim() // 加地點
+        val ratingValue = ratingSpinner.selectedItem.toString().toInt()
+        val selectedLocation = locationSpinner.selectedItem.toString().trim()
 
-        if (foodText.isEmpty()) {
-            Toast.makeText(this, "請輸入食物名稱", Toast.LENGTH_SHORT).show()
-            return
-        }
+        var savedSomething = false // ➔ 用來確認有沒有存任何東西
 
-        if (ratingValue == null || ratingValue !in 1..5) {
-            Toast.makeText(this, "請輸入 1 到 5 分的評分", Toast.LENGTH_SHORT).show()
-            return
-        }
+        // 處理食物儲存
+        if (foodText.isNotEmpty()) {
+            if (ratingValue !in 1..5) {
+                Toast.makeText(this, "請輸入 1 到 5 分的評分", Toast.LENGTH_SHORT).show()
+                return
+            }
 
-        // 🌟 在店名後加上 (地點)
-        val fullFoodName = "$foodText($selectedLocation)"
+            val fullFoodName = "$foodText($selectedLocation)"
 
-        // 🌟 檢查是否已經新增過這間店
-        if (foodList.contains(fullFoodName)) {
-            Toast.makeText(this, "你已經新增過這家店囉！", Toast.LENGTH_SHORT).show()
-            return
-        }
+            if (foodList.contains(fullFoodName)) {
+                Toast.makeText(this, "你已經新增過這家店囉！", Toast.LENGTH_SHORT).show()
+            } else {
+                val foodRef = database.child("users").child(userId).child("preferences").child("food")
+                val ratingRef = database.child("users").child(userId).child("preferences").child("ratings").child(fullFoodName)
 
-        val foodRef = database.child("users").child(userId).child("preferences").child("food")
-        val ratingRef = database.child("users").child(userId).child("preferences").child("ratings").child(fullFoodName)
-
-        foodList.add(fullFoodName) // 改存 fullFoodName
-        foodRef.setValue(foodList)
-            .addOnSuccessListener {
-                ratingRef.setValue(ratingValue)
+                foodList.add(fullFoodName)
+                foodRef.setValue(foodList)
                     .addOnSuccessListener {
-                        // 🔥 這裡是新增的重點：public_data > 縣市 > 店名 > rating 累加
-                        val selectedLocation = locationSpinner.selectedItem.toString() // 例如: 台中市
-                        val publicRatingRef = database.child("public_data")
-                            .child(selectedLocation)
-                            .child(foodText)
-                            .child("rating")
+                        ratingRef.setValue(ratingValue)
+                            .addOnSuccessListener {
+                                // 更新 public_data 的 rating
+                                val publicRatingRef = database.child("public_data")
+                                    .child(selectedLocation)
+                                    .child(foodText)
+                                    .child("rating")
 
-                        publicRatingRef.runTransaction(object : Transaction.Handler {
-                            override fun doTransaction(currentData: MutableData): Transaction.Result {
-                                val currentValue = currentData.getValue(Int::class.java) ?: 0
-                                currentData.value = currentValue + ratingValue
-                                return Transaction.success(currentData)
+                                publicRatingRef.runTransaction(object : Transaction.Handler {
+                                    override fun doTransaction(currentData: MutableData): Transaction.Result {
+                                        val currentValue = currentData.getValue(Int::class.java) ?: 0
+                                        currentData.value = currentValue + ratingValue
+                                        return Transaction.success(currentData)
+                                    }
+
+                                    override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                                        if (error != null) {
+                                            Log.e("PublicData", "更新 public_data 失敗: ${error.message}")
+                                        } else {
+                                            Log.d("PublicData", "public_data 已更新：$selectedLocation/$foodText +$ratingValue")
+                                        }
+                                    }
+                                })
+
+                                foodEditText.text.clear()
+                                foodAdapter.notifyDataSetChanged()
                             }
-
-                            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
-                                if (error != null) {
-                                    Log.e("PublicData", "更新 public_data 失敗: ${error.message}")
-                                } else {
-                                    Log.d("PublicData", "public_data 已更新：$selectedLocation/$foodText +$ratingValue")
-                                }
+                            .addOnFailureListener {
+                                Toast.makeText(this, "評分儲存失敗", Toast.LENGTH_SHORT).show()
                             }
-                        })
-
-                        // 接著儲存 allergy（如果有輸入）
-                        if (allergyText.isNotEmpty()) {
-                            val allergyRef = database.child("users").child(userId).child("preferences").child("allergies")
-                            allergyList.add(allergyText)
-                            allergyRef.setValue(allergyList)
-                                .addOnSuccessListener {
-                                    Toast.makeText(this, "已新增所有資料", Toast.LENGTH_SHORT).show()
-                                    foodEditText.text.clear()
-                                    allergyEditText.text.clear()
-                                    foodAdapter.notifyDataSetChanged()
-                                    allergyAdapter.notifyDataSetChanged()
-                                }
-                                .addOnFailureListener {
-                                    Toast.makeText(this, "過敏原儲存失敗", Toast.LENGTH_SHORT).show()
-                                }
-                        } else {
-                            Toast.makeText(this, "已新增食物與評分", Toast.LENGTH_SHORT).show()
-                            foodEditText.text.clear()
-                            foodAdapter.notifyDataSetChanged()
-                        }
                     }
                     .addOnFailureListener {
-                        Toast.makeText(this, "評分儲存失敗", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "食物儲存失敗", Toast.LENGTH_SHORT).show()
                     }
+                savedSomething = true
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "食物儲存失敗", Toast.LENGTH_SHORT).show()
-            }
+        }
+
+        // 處理過敏原儲存
+        if (allergyText.isNotEmpty()) {
+            val allergyRef = database.child("users").child(userId).child("preferences").child("allergies")
+            allergyList.add(allergyText)
+            allergyRef.setValue(allergyList)
+                .addOnSuccessListener {
+                    allergyEditText.text.clear()
+                    allergyAdapter.notifyDataSetChanged()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "過敏原儲存失敗", Toast.LENGTH_SHORT).show()
+                }
+            savedSomething = true
+        }
+
+        // 如果沒有填任何東西
+        if (!savedSomething) {
+            Toast.makeText(this, "請至少輸入一個食物或過敏原", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "已新增資料", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
 
 }

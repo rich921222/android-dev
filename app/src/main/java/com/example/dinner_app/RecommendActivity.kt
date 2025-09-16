@@ -3,8 +3,12 @@ package com.example.dinner_app
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -17,11 +21,15 @@ class RecommendActivity : AppCompatActivity() {
     private lateinit var slotView: TextView
     private lateinit var slotMachineImage: ImageView
     private lateinit var resultTextView: TextView
+    private var selectedCity: String? = null
     private lateinit var drawButton: Button
     private lateinit var auth: FirebaseAuth
+    private var isPublicMode = false  // 🌟 預設是個人模式
 
     private val foodScores = mutableMapOf<String, Int>()
+    private val publicFoodScores = mutableMapOf<String, Int>()    // 公共
     private var totalScore = 0
+    private var publicTotalScore = 0
     private var allEmails: List<String> = emptyList()
 
 
@@ -40,93 +48,50 @@ class RecommendActivity : AppCompatActivity() {
         allEmails = MainActivity.sessionPartnerEmails
         Log.d("Recommend", "收到 Email 列表: $allEmails")
 
-        if (allEmails.isNotEmpty()) {
-            loadAllUsersRatings()
-        }
-        else{
-            allEmails = listOf(currentUserEmail)
-            loadAllUsersRatings()
-        }
-
+//        if (allEmails.isNotEmpty()) {
+//            loadAllUsersRatings()
+//        }
+//        else{
+//            allEmails = listOf(currentUserEmail)
+//            loadAllUsersRatings()
+//        }
         drawButton.setOnClickListener {
-            if (foodScores.isEmpty()) {
-                resultTextView.text = "無法推薦：請先為你的喜好食物(至少有一項需要)設定星星評分 ⭐️"
-                return@setOnClickListener
-            }
-            slotMachineImage.setImageResource(R.drawable.slot_machine_pull) // 換成拉下圖片
-            drawButton.isEnabled = false // 防止重複點擊
-
-            val foodList = foodScores.entries.toList()
-            val rand = Random.nextDouble()
-            var cumulative = 0.0
-            var result = foodList.first().key
-            for ((food, score) in foodList) {
-                cumulative += score.toDouble() / totalScore
-                if (rand <= cumulative) {
-                    result = food
-                    break
-                }
+            val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
+            allEmails = MainActivity.sessionPartnerEmails
+            if (allEmails.isEmpty()) {
+                allEmails = listOf(currentUserEmail)
             }
 
-            // 動畫用
-            val displayOrder = foodList.map { it.key }.shuffled().toMutableList()
-            if (!displayOrder.contains(result)) displayOrder.add(result)
+            loadAllUsersRatings {
+                startRecommendation() // ⭐️ 資料載入完成後再抽獎
+            }
+        }
 
-            val totalCycles = 20 // 總共變換幾次
-            var currentIndex = 0
-            val handler = android.os.Handler()
-            val delayStep = 30L
-
-            fun animateStep(step: Int) {
-                if (step >= totalCycles) {
-                    slotView.text = result
-                    resultTextView.text = "今晚推薦：$result 🍽️"
-                    drawButton.isEnabled = true
-                    slotMachineImage.setImageResource(R.drawable.slot_machine_full)
-
-                    val uid = auth.currentUser?.uid ?: return
-                    val userHistoryRef = database.child("user_history").child(uid)
-
-                    // 1. 先 push 一筆新的推薦
-                    val newHistoryRef = userHistoryRef.push()
-                    val historyData = mapOf(
-                        "food" to result,
-                        "timestamp" to System.currentTimeMillis()
-                    )
-                    newHistoryRef.setValue(historyData)
-
-                    // 2. 然後檢查是否超過5筆，刪除舊的
-                    userHistoryRef.orderByChild("timestamp")
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                val histories = snapshot.children.toList()
-                                if (histories.size > 5) {
-                                    val excess = histories.size - 5
-                                    for (i in 0 until excess) {
-                                        histories[i].ref.removeValue() // ❌ 刪掉最舊的
-                                    }
-                                }
-                            }
-
-                            override fun onCancelled(error: DatabaseError) {
-                                Log.e("History", "歷史紀錄刪除失敗: ${error.message}")
-                            }
-                        })
-
-                    return
-                }
-
-                val food = displayOrder[currentIndex % displayOrder.size]
-                slotView.text = food
-                currentIndex++
-                handler.postDelayed({ animateStep(step + 1) }, delayStep + (step * 8)) // 每輪變慢一點
+        val citySpinner: Spinner = findViewById(R.id.citySpinner)
+        val cityList = listOf(
+            "全部縣市",
+            "台北市", "新北市", "桃園市", "台中市", "台南市", "高雄市",
+            "基隆市", "新竹市", "嘉義市",
+            "新竹縣", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "嘉義縣",
+            "屏東縣", "宜蘭縣", "花蓮縣", "台東縣",
+            "澎湖縣", "金門縣", "連江縣"
+        )
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, cityList)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        citySpinner.adapter = adapter
+        citySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                selectedCity = if (position == 0) null else cityList[position]
             }
 
-            animateStep(0)
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                selectedCity = null
+            }
         }
 
         val publicRecommendButton: Button = findViewById(R.id.publicRecommendButton)
         publicRecommendButton.setOnClickListener {
+            isPublicMode = true
             loadPublicRatings()
         }
 
@@ -138,7 +103,9 @@ class RecommendActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadAllUsersRatings() {
+    private fun loadAllUsersRatings(onDone: () -> Unit) {
+        foodScores.clear()
+        totalScore = 0
         var loadedCount = 0
 
         for (email in allEmails) {
@@ -151,32 +118,43 @@ class RecommendActivity : AppCompatActivity() {
                             loadRatingsForUser(uid) {
                                 loadedCount++
                                 if (loadedCount == allEmails.size) {
-                                    drawButton.isEnabled = true
                                     Log.d("Recommend", "所有評分資料已取得")
+                                    onDone()
                                 }
                             }
                         } else {
-                            Log.w("Recommend", "查無 $email 的 UID")
                             loadedCount++
+                            if (loadedCount == allEmails.size) onDone()
                         }
                     }
 
                     override fun onCancelled(error: DatabaseError) {
                         Log.e("Recommend", "email ➝ UID 查詢失敗: ${error.message}")
                         loadedCount++
+                        if (loadedCount == allEmails.size) onDone()
                     }
                 })
         }
     }
+
 
     private fun loadRatingsForUser(uid: String, onDone: () -> Unit) {
         database.child("users").child(uid).child("preferences").child("ratings")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (child in snapshot.children) {
-                        val food = child.key ?: continue
+                        val fullName = child.key ?: continue  // e.g., "壽司郎(台北市)"
                         val rating = child.getValue(Int::class.java) ?: 0
-                        foodScores[food] = (foodScores[food] ?: 0) + rating
+                        // 🔍 抽取括號內的縣市名稱
+                        val matchResult = Regex(".*\\((.+)\\)").find(fullName)
+                        val cityInName = matchResult?.groups?.get(1)?.value
+
+                        if (selectedCity != null && cityInName != selectedCity){
+                            Log.d("CityFilter", "略過餐廳: $fullName，因為 cityInName=$cityInName 與 selectedCity=$selectedCity 不符")
+                            continue
+                        }
+                        Log.d("CityFilter", "選擇餐廳: $fullName，cityInName=$cityInName 和 selectedCity=$selectedCity ")
+                        foodScores[fullName] = (foodScores[fullName] ?: 0) + rating
                         totalScore += rating
                     }
                     onDone()
@@ -190,45 +168,123 @@ class RecommendActivity : AppCompatActivity() {
     }
 
     private fun loadPublicRatings() {
-        drawButton.isEnabled = false
-        foodScores.clear()
-        totalScore = 0
+        publicFoodScores.clear()
+        publicTotalScore = 0
 
         database.child("public_data")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    for (restaurantSnapshot in snapshot.children) {
-                        val foodName = restaurantSnapshot.key ?: continue
-                        val score = restaurantSnapshot.child("ratings").getValue(Int::class.java) ?: continue
-                        foodScores[foodName] = score
-                        totalScore += score
+                    if (selectedCity == null)
+                    {
+                        for (locationSnapshot in snapshot.children) { // 地點 (縣市)
+                            for (restaurantSnapshot in locationSnapshot.children) { // 餐廳
+                                val foodName = restaurantSnapshot.key ?: continue
+                                val score = restaurantSnapshot.child("rating").getValue(Int::class.java) ?: continue
+                                publicFoodScores[foodName] = score
+                                publicTotalScore += score
+                            }
+                        }
                     }
-                    if (foodScores.isEmpty()) {
+                    else
+                    {
+                        val locationSnapshot = snapshot.child(selectedCity!!)
+                        for (restaurantSnapshot in locationSnapshot.children)
+                        {
+                            val foodName = restaurantSnapshot.key ?: continue
+                            val score = restaurantSnapshot.child("rating").getValue(Int::class.java) ?: continue
+                            publicFoodScores[foodName] = score
+                            publicTotalScore += score
+                        }
+                    }
+
+                    if (publicFoodScores.isEmpty()) {
                         resultTextView.text = "公共資料目前無法使用，請稍後再試。"
-                        return
+                    } else {
+                        startRecommendation() // ✅ 直接啟動抽獎動畫
                     }
-                    drawButton.performClick() // ✅ 直接觸發原本的推薦流程
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     Log.e("PublicRecommend", "讀取公共推薦失敗: ${error.message}")
                 }
             })
-
     }
 
+    private fun startRecommendation() {
+        if ((isPublicMode && publicFoodScores.isEmpty()) || (!isPublicMode && foodScores.isEmpty())) {
+            resultTextView.text = "無法推薦：尚無符合地點的餐廳資料"
+            return
+        }
 
-    private fun drawRecommendation(): String {
+        slotMachineImage.setImageResource(R.drawable.slot_machine_pull)
+
+        val foodList = if (isPublicMode) publicFoodScores.entries.toList() else foodScores.entries.toList()
+        val scoreSum = if (isPublicMode) publicTotalScore else totalScore
+
         val rand = Random.nextDouble()
         var cumulative = 0.0
-
-        for ((food, score) in foodScores) {
-            val probability = score.toDouble() / totalScore
-            cumulative += probability
+        var result = foodList.first().key
+        for ((food, score) in foodList) {
+            cumulative += score.toDouble() / scoreSum
             if (rand <= cumulative) {
-                return food
+                result = food
+                break
             }
         }
-        return foodScores.keys.random() // fallback：理論上不會進到這
+
+        val displayOrder = foodList.map { it.key }.shuffled().toMutableList()
+        if (!displayOrder.contains(result)) displayOrder.add(result)
+
+        val totalCycles = 20
+        var currentIndex = 0
+        val handler = android.os.Handler()
+        val delayStep = 30L
+
+        fun animateStep(step: Int) {
+            if (step >= totalCycles) {
+                slotView.text = stripLocation(result)
+                resultTextView.text = "今晚推薦：${stripLocation(result)} 🍽️"
+                slotMachineImage.setImageResource(R.drawable.slot_machine_full)
+
+                val uid = auth.currentUser?.uid ?: return
+                val userHistoryRef = database.child("users").child(uid).child("user_history")
+
+                val newHistoryRef = userHistoryRef.push()
+                val historyData = mapOf(
+                    "food" to result,
+                    "timestamp" to System.currentTimeMillis()
+                )
+                newHistoryRef.setValue(historyData)
+
+                userHistoryRef.orderByChild("timestamp")
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val histories = snapshot.children.toList()
+                            if (histories.size > 5) {
+                                val excess = histories.size - 5
+                                for (i in 0 until excess) {
+                                    histories[i].ref.removeValue()
+                                }
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("History", "歷史紀錄刪除失敗: ${error.message}")
+                        }
+                    })
+
+                return
+            }
+
+            val food = stripLocation(displayOrder[currentIndex % displayOrder.size])
+            slotView.text = food
+            currentIndex++
+            handler.postDelayed({ animateStep(step + 1) }, delayStep + (step * 8))
+        }
+
+        animateStep(0)
+    }
+    private fun stripLocation(fullName: String): String {
+        return fullName.replace(Regex("\\s*\\(.*\\)"), "")
     }
 }

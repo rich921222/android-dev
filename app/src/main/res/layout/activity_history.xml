@@ -18,7 +18,7 @@
             android:id="@+id/historyTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="📜 歷史紀錄回顧"
+            android:text="📜 History"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp" />
@@ -35,7 +35,7 @@
         android:id="@+id/backToMainButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="返回主畫面"
+        android:text="Return"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="16dp" />

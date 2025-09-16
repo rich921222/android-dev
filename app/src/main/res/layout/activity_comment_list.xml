@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@drawable/edit_pref_background">
@@ -10,10 +11,28 @@
         android:id="@+id/commentListTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="你的喜好食物"
+        android:text="Restaurant Comment Management"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="10dp" />
+
+    <!-- Spinner 外層用 CardView 來做白底 + 圓角 -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFFFFF"
+        android:layout_marginBottom="12dp">
+
+        <Spinner
+            android:id="@+id/locationSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:popupBackground="#FFFFFF"
+        android:padding="12dp" />           <!-- Spinner 內距 -->
+
+    </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/commentRecyclerView"
@@ -25,6 +44,6 @@
         android:id="@+id/backToMainButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="← 返回主畫面"
+        android:text="Return"
         android:layout_marginBottom="10dp" />
 </LinearLayout>

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center"
@@ -11,7 +12,7 @@
         android:id="@+id/resultTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="按下按鈕開始推薦晚餐 🍜"
+        android:text="Start the dinner recommendation 🍜"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginBottom="24dp" />
@@ -46,25 +47,40 @@
             android:typeface="monospace" />
     </FrameLayout>
 
+    <!-- Spinner 外層用 CardView 來做白底 + 圓角 -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#FFFFFF"
+        android:layout_marginBottom="12dp">
 
+        <Spinner
+            android:id="@+id/citySpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:popupBackground="#FFFFFF"
+            android:padding="12dp" />           <!-- Spinner 內距 -->
+
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:id="@+id/drawButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="推薦一下！"
-        android:enabled="false" />
+        android:text="Personal Recommendation" />
 
     <Button
         android:id="@+id/publicRecommendButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="  公共推薦  " />
+        android:text="Random Recommendation" />
 
     <Button
         android:id="@+id/backToMainButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="返回主畫面"
+        android:text="Return"
         android:layout_marginTop="24dp" />
 </LinearLayout>

@@ -26,7 +26,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="請輸入你的喜好食物"
+                android:text="Add a restaurant you like!"
                 android:textSize="16sp"
                 android:layout_marginBottom="8dp" />
 
@@ -35,27 +35,51 @@
                 style="@style/AppEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="例如: 壽司" />
+                android:hint="EX: Subway" />
 
-            <Spinner
-                android:id="@+id/ratingSpinner"
+            <!-- Spinner 外層用 CardView 來做白底 + 圓角 -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:spinnerMode="dropdown" />
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:layout_marginBottom="12dp">
+
+                <Spinner
+                    android:id="@+id/ratingSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:popupBackground="#FFFFFF"
+                    android:padding="12dp" />           <!-- Spinner 內距 -->
+
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="請選擇所在縣市"
+                android:text="Please select your city"
                 android:textSize="16sp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="4dp" />
 
-            <Spinner
-                android:id="@+id/locationSpinner"
+            <!-- Spinner 外層用 CardView 來做白底 + 圓角 -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:spinnerMode="dropdown" />
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:layout_marginBottom="12dp">
+
+                <Spinner
+                    android:id="@+id/locationSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:popupBackground="#FFFFFF"
+                    android:padding="12dp" />           <!-- Spinner 內距 -->
+
+            </androidx.cardview.widget.CardView>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/foodRecyclerView"
@@ -67,7 +91,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="請輸入你的過敏原"
+                android:text="Please enter your food allergies"
                 android:textSize="16sp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp" />
@@ -77,7 +101,7 @@
                 style="@style/AppEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="例如: 花生" />
+                android:hint="EX: peanut" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/allergyRecyclerView"
@@ -101,13 +125,13 @@
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="儲存"/>
+            android:text="Save"/>
 
         <Button
             android:id="@+id/cancelButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="取消"
+            android:text="Return"
             android:layout_marginTop="10dp" />
     </LinearLayout>
 

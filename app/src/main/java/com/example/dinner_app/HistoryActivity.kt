@@ -36,7 +36,7 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun loadHistory() {
         val uid = auth.currentUser?.uid ?: return
-        val ref = database.child("user_history").child(uid)
+        val ref = database.child("users").child(uid).child("user_history")
 
         ref.orderByChild("timestamp").limitToLast(5)
             .addListenerForSingleValueEvent(object : ValueEventListener {

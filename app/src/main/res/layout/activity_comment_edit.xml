@@ -8,9 +8,10 @@
 
     <EditText
         android:id="@+id/commentEditText"
+        style="@style/AppEditText"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:hint="請輸入你的評論"
+        android:hint="Enter yout comment"
         android:gravity="top"
         android:inputType="textMultiLine" />
 
@@ -18,13 +19,13 @@
         android:id="@+id/saveCommentButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="儲存"
+        android:text="Save"
         android:layout_marginTop="16dp" />
 
     <Button
         android:id="@+id/backButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="返回"
+        android:text="Return"
         android:layout_marginTop="8dp"/>
 </LinearLayout>

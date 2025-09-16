@@ -175,12 +175,12 @@ class MainActivity : AppCompatActivity() {
                 val allergyList = snapshot.child("allergies").children.mapNotNull { it.getValue(String::class.java) }
 
                 if (snapshot.exists()) {
-                    addSectionWithRatings("🍽 喜好食物", foodList, ratingMap)
-                    addSection("🚫 過敏原", allergyList)
+                    addSectionWithRatings("🍽 Favorite Restaurants", foodList, ratingMap)
+                    addSection("🚫 Allergy", allergyList)
                 } else {
                     // 也可加一點 fallback
-                    addSection("🍽 喜好食物", listOf("尚未設定"))
-                    addSection("🚫 過敏原", listOf("尚未設定"))
+                    addSection("🍽 Favorite Restaurants", listOf("Not Set"))
+                    addSection("🚫 Allergy", listOf("Not Set"))
                 }
             }
 

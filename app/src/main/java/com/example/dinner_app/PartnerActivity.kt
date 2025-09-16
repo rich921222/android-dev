@@ -151,7 +151,7 @@ class PartnerActivity : AppCompatActivity() {
                 emailToViewMap[email] = personContainer
                 resultContainer.addView(personContainer)
                 val titleView = TextView(this@PartnerActivity).apply {
-                    text = "👤 同行者：$email"
+                    text = "👤 Partner：$email"
                     textSize = 17f
                     setPadding(0, 0, 0, 12)
                     setTypeface(null, Typeface.BOLD)
@@ -168,8 +168,8 @@ class PartnerActivity : AppCompatActivity() {
                 val foodList = snapshot.child("food").children.mapNotNull { it.getValue(String::class.java) }
                 val allergyList = snapshot.child("allergies").children.mapNotNull { it.getValue(String::class.java) }
 
-                addSectionWithRatings("🍽 喜好食物", foodList, ratingMap,personContainer)
-                addSection("🚫 過敏原", allergyList,personContainer)
+                addSectionWithRatings("🍽 Favorite Restaurant", foodList, ratingMap,personContainer)
+                addSection("🚫 Allergies", allergyList,personContainer)
             }
 
             override fun onCancelled(error: DatabaseError) {

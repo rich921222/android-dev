@@ -10,7 +10,7 @@
         android:id="@+id/publicCommentTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="評論列表"
+        android:text="Comment List"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="10dp" />
@@ -24,6 +24,6 @@
         android:id="@+id/backToCommentListButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="← 返回評論區"
+        android:text="Return"
         android:layout_marginBottom="12dp"/>
 </LinearLayout>
