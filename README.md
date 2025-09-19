@@ -19,5 +19,5 @@
 ### main > res > ...
 	- 各個頁面的架構及裝飾(有點像html)
 
-### app > build > outputs > apk > debug > app-debug.apk
+### app-debug.apk
 	- 該檔案可以下載至android手機上並使用Dinner_App 
